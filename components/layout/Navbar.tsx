@@ -22,7 +22,7 @@ import { clsx } from 'clsx';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-  { name: 'Tasks', href: '/dashboard', icon: ClipboardDocumentListIcon },
+  { name: 'Tasks', href: '/tasks', icon: ClipboardDocumentListIcon },
   { name: 'Profile', href: '/profile', icon: UserCircleIcon },
 ];
 

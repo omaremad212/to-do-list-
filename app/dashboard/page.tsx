@@ -2,37 +2,33 @@
 
 import { useSession } from 'next-auth/react';
 import { Navbar, Sidebar } from '@/components/layout';
-import { TaskList, TaskFilters } from '@/components/tasks';
 import { useTasks } from '@/hooks/useTasks';
-import { TaskFilter, TaskFormData, Task, TaskPriority } from '@/types';
-import { MagnifyingGlassIcon, SparklesIcon } from '@heroicons/react/24/outline';
-import { Modal, Button, Input, Textarea, Select } from '@/components/ui';
+import { Task } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { format } from 'date-fns';
+import { format, subDays, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
+import { clsx } from 'clsx';
+import {
+  CheckCircleIcon,
+  ClockIcon,
+  FireIcon,
+  TrophyIcon,
+  BoltIcon,
+  ArrowUpIcon,
+  ChartBarIcon,
+  CalendarIcon,
+  TargetIcon,
+  TrendUpIcon,
+} from 'lucide-react';
+import { LineChart, StatCard, BarChart, DonutChart } from '@/components/ui/Charts';
+import { RecentActivity, QuickStats, ProductivityScore } from '@/components/ui/Widgets';
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-
-  const {
-    tasks,
-    loading,
-    filter,
-    setFilter,
-    search,
-    setSearch,
-    addTask,
-    updateTask,
-    deleteTask,
-    toggleComplete,
-    stats,
-    isDemo,
-  } = useTasks();
+  const { tasks, loading, stats, isDemo } = useTasks();
+  const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('7d');
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -40,47 +36,7 @@ export default function DashboardPage() {
     }
   }, [status, router]);
 
-  const handleAddClick = () => {
-    setEditingTask(null);
-    setIsFormOpen(true);
-  };
-
-  const handleEdit = (task: Task) => {
-    setEditingTask(task);
-    setIsFormOpen(true);
-  };
-
-  const handleDelete = (id: string) => {
-    setDeleteConfirm(id);
-  };
-
-  const handleFormSubmit = async (data: TaskFormData) => {
-    if (editingTask) {
-      await updateTask({
-        ...editingTask,
-        ...data,
-        dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
-      });
-    } else {
-      await addTask(data);
-    }
-    setIsFormOpen(false);
-    setEditingTask(null);
-  };
-
-  const handleFormClose = () => {
-    setIsFormOpen(false);
-    setEditingTask(null);
-  };
-
-  const confirmDelete = async () => {
-    if (deleteConfirm) {
-      await deleteTask(deleteConfirm);
-      setDeleteConfirm(null);
-    }
-  };
-
-  if (status === 'loading') {
+  if (status === 'loading' || !session) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
         <motion.div
@@ -92,29 +48,69 @@ export default function DashboardPage() {
     );
   }
 
-  if (!session) {
-    router.push('/login');
-    return null;
-  }
+  const completedTasks = tasks.filter((t) => t.completed);
+  const pendingTasks = tasks.filter((t) => !t.completed);
+  const highPriorityTasks = tasks.filter((t) => t.priority === 'high');
+  const overdueTasks = tasks.filter((t) => {
+    if (!t.dueDate || t.completed) return false;
+    return new Date(t.dueDate) < new Date();
+  });
+
+  const completionRate = tasks.length > 0 
+    ? Math.round((completedTasks.length / tasks.length) * 100) 
+    : 0;
+
+  const generateActivityData = () => {
+    const last7Days = eachDayOfInterval({
+      start: subDays(new Date(), 6),
+      end: new Date(),
+    });
+    
+    return last7Days.map((day) => {
+      const dayTasks = tasks.filter((t) => {
+        if (!t.updatedAt) return false;
+        const taskDate = new Date(t.updatedAt);
+        return taskDate.toDateString() === day.toDateString();
+      });
+      return {
+        label: format(day, 'EEE'),
+        value: dayTasks.length,
+      };
+    });
+  };
+
+  const generatePriorityData = () => [
+    { label: 'High', value: highPriorityTasks.length, color: 'var(--color-priority-high)' },
+    { label: 'Medium', value: tasks.filter((t) => t.priority === 'medium').length, color: 'var(--color-priority-medium)' },
+    { label: 'Low', value: tasks.filter((t) => t.priority === 'low').length, color: 'var(--color-priority-low)' },
+  ];
+
+  const chartData = generateActivityData();
+  const priorityData = generatePriorityData();
+
+  const recentActivities: Activity[] = tasks
+    .slice(0, 10)
+    .map((t) => ({
+      id: t.id,
+      type: t.completed ? 'completed' as const : 'created' as const,
+      taskTitle: t.title,
+      timestamp: new Date(t.updatedAt || t.createdAt),
+      userId: t.userId,
+    }));
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
       <Navbar />
-
       <div className="flex">
-        <Sidebar filter={filter} onFilterChange={setFilter} stats={stats} />
-
-        <main
-          className="flex-1 pt-[var(--navbar-height)] lg:ml-[var(--sidebar-width)]"
-          style={{ transition: 'margin-left 0.3s ease' }}
-        >
-          <div className="max-w-4xl mx-auto p-6 lg:p-8">
+        <Sidebar filter="all" onFilterChange={() => {}} stats={stats} />
+        
+        <main className="flex-1 pt-[var(--navbar-height)] lg:ml-[var(--sidebar-width)]">
+          <div className="p-6 lg:p-8 space-y-8">
             <AnimatePresence mode="wait">
               <motion.div
-                key="dashboard-header"
+                key="header"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
                 className="mb-8"
               >
                 {isDemo && (
@@ -123,134 +119,167 @@ export default function DashboardPage() {
                     animate={{ opacity: 1, scale: 1 }}
                     className="flex items-center gap-2 px-4 py-3 gradient-primary/10 border border-[var(--primary)]/20 rounded-2xl mb-6"
                   >
-                    <SparklesIcon className="w-5 h-5 text-[var(--primary)]" />
+                    <BoltIcon className="w-5 h-5 text-[var(--primary)]" />
                     <span className="text-sm font-medium text-[var(--primary)]">
-                      Demo Mode - You are exploring with sample data. Feel free to make changes!
+                      Demo Mode - Exploring with sample data
                     </span>
                   </motion.div>
                 )}
 
-                <div className="flex items-start justify-between gap-4 mb-2">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-[var(--foreground)] tracking-tight">
-                      Tasks
+                      Dashboard
                     </h1>
                     <p className="text-sm text-[var(--muted-foreground)] mt-1">
                       {format(new Date(), 'EEEE, MMMM d, yyyy')}
                     </p>
                   </div>
-
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="hidden sm:flex items-center gap-3"
-                  >
-                    <div className="text-right px-4 py-2 rounded-xl bg-[var(--card)] border border-[var(--border)]">
-                      <p className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider">
-                        Completed
-                      </p>
-                      <p className="text-lg font-bold text-[var(--foreground)]">
-                        {stats.completed}
-                        <span className="text-sm text-[var(--muted-foreground)] font-normal">
-                          {' '}
-                          / {stats.total}
-                        </span>
-                      </p>
-                    </div>
-                  </motion.div>
+                  
+                  <div className="flex items-center gap-2 p-1 bg-[var(--muted)] rounded-xl">
+                    {(['7d', '30d', '90d'] as const).map((range) => (
+                      <button
+                        key={range}
+                        onClick={() => setTimeRange(range)}
+                        className={clsx(
+                          'px-4 py-2 text-sm font-medium rounded-lg transition-all',
+                          timeRange === range
+                            ? 'bg-[var(--card)] text-[var(--foreground)] shadow-sm'
+                            : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
+                        )}
+                      >
+                        {range === '7d' ? '7 Days' : range === '30d' ? '30 Days' : '90 Days'}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </motion.div>
             </AnimatePresence>
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.1 }}
-              className="mb-6"
-            >
-              <div className="relative">
-                <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--muted-foreground)]" />
-                <input
-                  type="text"
-                  placeholder="Search tasks..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="w-full h-12 pl-11 pr-4 rounded-xl border-2 border-[var(--border)] bg-[var(--card)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-4 focus:ring-[var(--primary)]/10 focus:border-[var(--primary)] transition-all"
-                />
-              </div>
-            </motion.div>
-
-            <AnimatePresence mode="wait">
-              <motion.div
-                key="task-filters"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ delay: 0.05 }}
-              >
-                <TaskFilters
-                  filter={filter}
-                  onFilterChange={setFilter}
-                  onAddClick={handleAddClick}
-                />
-              </motion.div>
-            </AnimatePresence>
-
-            <AnimatePresence mode="wait">
-              <motion.div
-                key="task-list"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ delay: 0.1 }}
-              >
-                <TaskList
-                  tasks={tasks}
-                  loading={loading}
-                  filter={filter}
-                  search={search}
-                  onToggleComplete={toggleComplete}
-                  onUpdateTask={handleEdit}
-                  onDeleteTask={handleDelete}
-                  onAddTask={handleFormSubmit}
-                />
-              </motion.div>
-            </AnimatePresence>
-
-            {isFormOpen && (
-              <TaskFormModal
-                isOpen={isFormOpen}
-                onClose={handleFormClose}
-                onSubmit={handleFormSubmit}
-                initialData={editingTask}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <StatCard
+                title="Total Tasks"
+                value={tasks.length}
+                change={12}
+                trend="up"
+                icon={<ChartBarIcon className="w-5 h-5" />}
+                subtitle="This week"
               />
-            )}
+              <StatCard
+                title="Completed"
+                value={completedTasks.length}
+                change={8}
+                trend="up"
+                icon={<CheckCircleIcon className="w-5 h-5" />}
+                subtitle="This week"
+              />
+              <StatCard
+                title="In Progress"
+                value={pendingTasks.length}
+                change={-3}
+                trend="down"
+                icon={<ClockIcon className="w-5 h-5" />}
+              />
+              <StatCard
+                title="Overdue"
+                value={overdueTasks.length}
+                change={0}
+                trend="neutral"
+                icon={<CalendarIcon className="w-5 h-5" />}
+              />
+            </div>
 
-            <AnimatePresence>
-              {deleteConfirm && (
-                <Modal
-                  isOpen={!!deleteConfirm}
-                  onClose={() => setDeleteConfirm(null)}
-                  title="Delete Task"
-                  size="sm"
-                >
-                  <p className="text-[var(--muted-foreground)] mb-6">
-                    Are you sure you want to delete this task? This action cannot be undone.
-                  </p>
-                  <div className="flex justify-end gap-3">
-                    <Button
-                      variant="ghost"
-                      onClick={() => setDeleteConfirm(null)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button variant="danger" onClick={confirmDelete}>
-                      Delete
-                    </Button>
+            <div className="grid lg:grid-cols-3 gap-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="lg:col-span-2 p-6 rounded-2xl bg-[var(--card)] border border-[var(--border)] shadow-sm"
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className="text-lg font-semibold text-[var(--foreground)]">
+                      Task Completion
+                    </h3>
+                    <p className="text-sm text-[var(--muted-foreground)]">
+                      Tasks completed over time
+                    </p>
                   </div>
-                </Modal>
-              )}
-            </AnimatePresence>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-[var(--foreground)]">
+                      {completionRate}%
+                    </div>
+                    <div className="text-xs text-emerald-500">+5% vs last week</div>
+                  </div>
+                </div>
+                <LineChart
+                  data={chartData}
+                  height={200}
+                  color="var(--primary)"
+                />
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="p-6 rounded-2xl bg-[var(--card)] border border-[var(--border)] shadow-sm"
+              >
+                <h3 className="text-lg font-semibold text-[var(--foreground)] mb-6">
+                  By Priority
+                </h3>
+                <DonutChart data={priorityData} size={160} strokeWidth={16} />
+                <div className="mt-6 space-y-3">
+                  {priorityData.map((item, i) => (
+                    <div key={i} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: item.color }}
+                        />
+                        <span className="text-sm text-[var(--muted-foreground)]">
+                          {item.label}
+                        </span>
+                      </div>
+                      <span className="text-sm font-semibold text-[var(--foreground)]">
+                        {item.value}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="p-6 rounded-2xl bg-[var(--card)] border border-[var(--border)] shadow-sm"
+              >
+                <QuickStats tasks={tasks} />
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="p-6 rounded-2xl bg-[var(--card)] border border-[var(--border)] shadow-sm"
+              >
+                <ProductivityScore 
+                  score={completionRate} 
+                  trend={[65, 72, 68, 80, 75, 85, completionRate]} 
+                />
+              </motion.div>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="p-6 rounded-2xl bg-[var(--card)] border border-[var(--border)] shadow-sm"
+            >
+              <RecentActivity activities={recentActivities} />
+            </motion.div>
           </div>
         </main>
       </div>
@@ -258,111 +287,10 @@ export default function DashboardPage() {
   );
 }
 
-function TaskFormModal({
-  isOpen,
-  onClose,
-  onSubmit,
-  initialData,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: TaskFormData) => void;
-  initialData?: Task | null;
-}) {
-  const [formData, setFormData] = useState<TaskFormData>({
-    title: '',
-    description: '',
-    priority: 'medium',
-    dueDate: '',
-  });
-
-  useEffect(() => {
-    if (initialData) {
-      setFormData({
-        title: initialData.title,
-        description: initialData.description || '',
-        priority: initialData.priority,
-        dueDate: initialData.dueDate
-          ? new Date(initialData.dueDate).toISOString().split('T')[0]
-          : '',
-      });
-    } else {
-      setFormData({ title: '', description: '', priority: 'medium', dueDate: '' });
-    }
-  }, [initialData, isOpen]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
-
-  const priorityOptions = [
-    { value: 'low', label: 'Low' },
-    { value: 'medium', label: 'Medium' },
-    { value: 'high', label: 'High' },
-  ];
-
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={initialData ? 'Edit Task' : 'Add New Task'}
-      size="md"
-    >
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <Input
-          label="Title"
-          id="title"
-          value={formData.title}
-          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          placeholder="Enter task title"
-          required
-        />
-
-        <Textarea
-          label="Description (optional)"
-          id="description"
-          value={formData.description || ''}
-          onChange={(e) =>
-            setFormData({ ...formData, description: e.target.value })
-          }
-          placeholder="Add more details..."
-        />
-
-        <div className="grid grid-cols-2 gap-4">
-          <Select
-            label="Priority"
-            id="priority"
-            value={formData.priority}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                priority: e.target.value as TaskPriority,
-              })
-            }
-            options={priorityOptions}
-          />
-
-          <Input
-            label="Due Date"
-            id="dueDate"
-            type="date"
-            value={formData.dueDate || ''}
-            onChange={(e) =>
-              setFormData({ ...formData, dueDate: e.target.value })
-            }
-          />
-        </div>
-
-        <div className="flex items-center justify-end gap-3 pt-4">
-          <Button type="button" variant="ghost" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button type="submit">
-            {initialData ? 'Save Changes' : 'Add Task'}
-          </Button>
-        </div>
-      </form>
-    </Modal>
-  );
+interface Activity {
+  id: string;
+  type: 'completed' | 'created' | 'updated' | 'deleted';
+  taskTitle: string;
+  timestamp: Date;
+  userId: string;
 }
