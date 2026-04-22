@@ -2,7 +2,6 @@
 
 import { clsx } from 'clsx';
 import { forwardRef, InputHTMLAttributes } from 'react';
-import { motion } from 'framer-motion';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -28,10 +27,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               {icon}
             </div>
           )}
-          <motion.input
+          <input
             ref={ref}
             id={id}
-            whileFocus={{ scale: 1.01 }}
             className={clsx(
               'w-full h-12 px-4 rounded-xl border-2 bg-[var(--input)] text-[var(--input-foreground)] transition-all duration-200',
               'focus:outline-none focus:ring-4 focus:ring-[var(--primary)]/10 focus:border-[var(--primary)]',
@@ -39,13 +37,13 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               icon && 'pl-11',
               error
                 ? 'border-red-500 focus:ring-red-500/10 focus:border-red-500'
-                : 'border-[var(--border)] hover:border-[var(--border-hover)]',
+                : 'border-[var(--border)] hover:border-[var(--border-hover)] focus:border-[var(--primary)]',
               className
             )}
             style={{
               backgroundColor: 'var(--input)',
               color: 'var(--input-foreground)',
-              borderColor: error ? 'var(--destructive)' : 'var(--border)',
+              borderColor: error ? 'var(--destructive)' : undefined,
             }}
             {...props}
           />
