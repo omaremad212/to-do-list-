@@ -7,7 +7,7 @@ import { Navbar, Sidebar } from '@/components/layout';
 import { TaskList, TaskFilters } from '@/components/tasks';
 import { useTasks } from '@/hooks/useTasks';
 import { TaskFilter, TaskFormData, Task, TaskPriority } from '@/types';
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { Modal, Button, Input, Textarea, Select } from '@/components/ui';
 
 export default function DashboardPage() {
@@ -29,6 +29,7 @@ export default function DashboardPage() {
     deleteTask,
     toggleComplete,
     stats,
+    isDemo,
   } = useTasks();
 
   useEffect(() => {
@@ -99,6 +100,14 @@ export default function DashboardPage() {
         <main className="flex-1 pt-16 lg:ml-64">
           <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
             <div className="mb-8">
+              {isDemo && (
+                <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 rounded-lg mb-4">
+                  <SparklesIcon className="w-5 h-5 text-indigo-500" />
+                  <span className="text-sm text-indigo-700 dark:text-indigo-300">
+                    Demo Mode - 你正在体验演示数据，可以随意操作
+                  </span>
+                </div>
+              )}
               <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">
                 Tasks
               </h1>
