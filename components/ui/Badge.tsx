@@ -1,6 +1,7 @@
 'use client';
 
 import { clsx } from 'clsx';
+import { motion } from 'framer-motion';
 import { TaskPriority } from '@/types';
 
 interface BadgeProps {
@@ -9,22 +10,27 @@ interface BadgeProps {
   className?: string;
 }
 
-export function Badge({ variant = 'default', children, className }: BadgeProps) {
+export function Badge({
+  variant = 'default',
+  children,
+  className,
+}: BadgeProps) {
   return (
-    <span
+    <motion.span
+      whileHover={{ scale: 1.05 }}
       className={clsx(
-        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+        'inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold',
         {
-          'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300': variant === 'default',
-          'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400': variant === 'success',
-          'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400': variant === 'warning',
-          'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400': variant === 'danger',
+          'bg-[var(--muted)] text-[var(--muted-foreground)]': variant === 'default',
+          'bg-[var(--color-priority-low-bg)] text-[var(--color-priority-low)]': variant === 'success',
+          'bg-[var(--color-priority-medium-bg)] text-[var(--color-priority-medium)]': variant === 'warning',
+          'bg-[var(--color-priority-high-bg)] text-[var(--color-priority-high)]': variant === 'danger',
         },
         className
       )}
     >
       {children}
-    </span>
+    </motion.span>
   );
 }
 

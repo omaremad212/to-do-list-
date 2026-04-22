@@ -2,6 +2,7 @@
 
 import { clsx } from 'clsx';
 import { forwardRef, TextareaHTMLAttributes } from 'react';
+import { motion } from 'framer-motion';
 
 interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
@@ -13,24 +14,37 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <div className="w-full">
         {label && (
-          <label htmlFor={id} className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">
+          <label
+            htmlFor={id}
+            className="block text-sm font-semibold text-[var(--foreground)] mb-2"
+          >
             {label}
           </label>
         )}
-        <textarea
+        <motion.textarea
           ref={ref}
           id={id}
+          whileFocus={{ scale: 1.01 }}
           className={clsx(
-            'w-full min-h-[100px] px-4 py-3 rounded-md border bg-white text-slate-900 transition-all duration-200',
-            'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
-            'placeholder:text-slate-400 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:border-slate-600',
-            error ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 dark:border-slate-700',
+            'w-full min-h-[120px] px-4 py-3 rounded-xl border-2 bg-[var(--input)] text-[var(--input-foreground)] transition-all duration-200 resize-none',
+            'focus:outline-none focus:ring-4 focus:ring-[var(--primary)]/10 focus:border-[var(--primary)]',
+            'placeholder:text-[var(--muted-foreground)]',
+            error
+              ? 'border-red-500 focus:ring-red-500/10 focus:border-red-500'
+              : 'border-[var(--border)] hover:border-[var(--border-hover)]',
             className
           )}
+          style={{
+            backgroundColor: 'var(--input)',
+            color: 'var(--input-foreground)',
+            borderColor: error ? 'var(--destructive)' : 'var(--border)',
+          }}
           {...props}
         />
         {error && (
-          <p className="mt-1 text-sm text-red-500">{error}</p>
+          <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
+            {error}
+          </p>
         )}
       </div>
     );

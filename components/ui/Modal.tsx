@@ -13,7 +13,13 @@ interface ModalProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-export default function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
+export default function Modal({
+  isOpen,
+  onClose,
+  title,
+  children,
+  size = 'md',
+}: ModalProps) {
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -36,16 +42,17 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
             className={clsx(
-              'relative w-full bg-white dark:bg-slate-800 rounded-xl shadow-xl',
+              'relative w-full bg-[var(--card)] rounded-2xl shadow-2xl border border-[var(--border)] overflow-hidden',
               {
                 'max-w-sm': size === 'sm',
                 'max-w-md': size === 'md',
@@ -54,14 +61,18 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
             )}
           >
             {title && (
-              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
-                <button
+              <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)] bg-gradient-to-br from-[var(--primary)]/5 to-transparent">
+                <h2 className="text-lg font-semibold text-[var(--foreground)]">
+                  {title}
+                </h2>
+                <motion.button
                   onClick={onClose}
-                  className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="p-2 rounded-xl text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--accent)] transition-all"
                 >
                   <XMarkIcon className="w-5 h-5" />
-                </button>
+                </motion.button>
               </div>
             )}
             <div className="p-6">{children}</div>

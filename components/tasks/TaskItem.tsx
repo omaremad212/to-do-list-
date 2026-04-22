@@ -14,7 +14,12 @@ interface TaskItemProps {
   onDelete: (id: string) => void;
 }
 
-export default function TaskItem({ task, onToggleComplete, onEdit, onDelete }: TaskItemProps) {
+export default function TaskItem({
+  task,
+  onToggleComplete,
+  onEdit,
+  onDelete,
+}: TaskItemProps) {
   const dueDate = task.dueDate ? new Date(task.dueDate) : null;
   const isOverdue = dueDate && isPast(dueDate) && !task.completed;
 
@@ -30,32 +35,35 @@ export default function TaskItem({ task, onToggleComplete, onEdit, onDelete }: T
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
+      whileHover={{ y: -2, scale: 1.01 }}
+      transition={{ duration: 0.2 }}
       className={clsx(
-        'group relative p-4 border rounded-lg bg-white dark:bg-slate-800 transition-all',
-        'hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-700',
-        task.completed ? 'opacity-60' : 'border-slate-200 dark:border-slate-700'
+        'group relative p-4 rounded-2xl bg-[var(--card)] border border-[var(--border)] transition-all duration-200',
+        'hover:shadow-lg hover:border-[var(--primary)]/30',
+        task.completed && 'opacity-60'
       )}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-4">
         <Checkbox
           checked={task.completed}
           onChange={(checked) => onToggleComplete(task.id, checked)}
         />
 
         <div className="flex-1 min-w-0">
-          <h3
+          <motion.h3
+            layout
             className={clsx(
-              'font-medium text-slate-900 dark:text-slate-100',
-              task.completed && 'line-through text-slate-500 dark:text-slate-400'
+              'font-semibold text-[var(--foreground)]',
+              task.completed && 'line-through text-[var(--muted-foreground)]'
             )}
           >
             {task.title}
-          </h3>
+          </motion.h3>
 
           {task.description && (
             <p
               className={clsx(
-                'mt-1 text-sm text-slate-500 dark:text-slate-400 line-clamp-2',
+                'mt-1 text-sm text-[var(--muted-foreground)] line-clamp-2',
                 task.completed && 'line-through'
               )}
             >
@@ -63,16 +71,16 @@ export default function TaskItem({ task, onToggleComplete, onEdit, onDelete }: T
             </p>
           )}
 
-          <div className="flex items-center gap-3 mt-2">
+          <div className="flex items-center gap-3 mt-3">
             <PriorityBadge priority={task.priority} />
 
             {dueDate && (
               <div
                 className={clsx(
-                  'flex items-center gap-1 text-xs',
+                  'flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-lg bg-[var(--muted)] transition-colors',
                   isOverdue
-                    ? 'text-red-600 dark:text-red-400 font-medium'
-                    : 'text-slate-500 dark:text-slate-400'
+                    ? 'text-red-500 bg-red-500/10'
+                    : 'text-[var(--muted-foreground)]'
                 )}
               >
                 <CalendarIcon className="w-3.5 h-3.5" />
@@ -82,20 +90,28 @@ export default function TaskItem({ task, onToggleComplete, onEdit, onDelete }: T
           </div>
         </div>
 
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileHover={{ opacity: 1 }}
+          className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all"
+        >
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
             onClick={() => onEdit(task)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors"
+            className="p-2 rounded-xl text-[var(--muted-foreground)] hover:text-[var(--primary)] hover:bg-[var(--primary)]/10 transition-all"
           >
             <PencilIcon className="w-4 h-4" />
-          </button>
-          <button
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
             onClick={() => onDelete(task.id)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+            className="p-2 rounded-xl text-[var(--muted-foreground)] hover:text-red-500 hover:bg-red-500/10 transition-all"
           >
             <TrashIcon className="w-4 h-4" />
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
       </div>
     </motion.div>
   );

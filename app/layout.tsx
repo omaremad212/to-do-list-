@@ -1,11 +1,13 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import Providers from "@/components/providers/Providers";
-import { Toaster } from "react-hot-toast";
+'use client';
+
+import { useSession } from 'next-auth/react';
+import Providers from '@/components/providers/Providers';
+import { Toaster } from 'react-hot-toast';
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "TaskFlow Pro - Modern To-Do List",
-  description: "A premium to-do list management application with Google authentication, task prioritization, and due dates.",
+  title: 'TaskFlow - Modern To-Do List',
+  description: 'A premium to-do list management application with modern design.',
 };
 
 export default function RootLayout({
@@ -15,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen bg-slate-50 dark:bg-slate-900">
+      <body className="min-h-screen bg-[var(--background)] text-[var(--foreground)] antialiased">
         <Providers>
           {children}
           <Toaster
@@ -23,9 +25,11 @@ export default function RootLayout({
             toastOptions={{
               duration: 3000,
               style: {
-                background: '#1e293b',
-                color: '#f8fafc',
-                border: '#334155',
+                background: 'var(--card)',
+                color: 'var(--foreground)',
+                border: '1px solid var(--border)',
+                borderRadius: '0.75rem',
+                boxShadow: 'var(--shadow-lg)',
               },
               success: {
                 iconTheme: {

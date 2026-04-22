@@ -2,6 +2,8 @@
 
 import { TaskFilter } from '@/types';
 import { clsx } from 'clsx';
+import { motion } from 'framer-motion';
+import { PlusIcon } from '@heroicons/react/24/outline';
 
 interface TaskFiltersProps {
   filter: TaskFilter;
@@ -15,32 +17,52 @@ const filters: { value: TaskFilter; label: string }[] = [
   { value: 'completed', label: 'Completed' },
 ];
 
-export default function TaskFilters({ filter, onFilterChange, onAddClick }: TaskFiltersProps) {
+export default function TaskFilters({
+  filter,
+  onFilterChange,
+  onAddClick,
+}: TaskFiltersProps) {
   return (
-    <div className="flex items-center justify-between gap-2 mb-6">
-      <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
-        {filters.map((f) => (
-          <button
-            key={f.value}
-            onClick={() => onFilterChange(f.value)}
-            className={clsx(
-              'px-3 py-1.5 text-sm font-medium rounded-md transition-colors',
-              filter === f.value
-                ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-            )}
-          >
-            {f.label}
-          </button>
-        ))}
+    <div className="flex items-center justify-between gap-4 mb-6">
+      <div className="flex items-center gap-1 p-1.5 bg-[var(--muted)] rounded-xl">
+        {filters.map((f) => {
+          const isActive = filter === f.value;
+          return (
+            <motion.button
+              key={f.value}
+              onClick={() => onFilterChange(f.value)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className={clsx(
+                'relative px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200',
+                isActive
+                  ? 'bg-[var(--card)] text-[var(--foreground)] shadow-sm'
+                  : 'text-[var(--muted-foreground)] hover:text-[var(--foreground)]'
+              )}
+            >
+              {isActive && (
+                <motion.div
+                  layoutId="activeFilter"
+                  className="absolute inset-0 bg-[var(--card)] rounded-lg shadow-sm"
+                  initial={false}
+                  transition={{ type: 'spring', duration: 0.4 }}
+                />
+              )}
+              <span className="relative z-10">{f.label}</span>
+            </motion.button>
+          );
+        })}
       </div>
 
-      <button
+      <motion.button
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
         onClick={onAddClick}
-        className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors"
+        className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white gradient-primary rounded-xl shadow-lg shadow-[var(--primary)]/25 hover:shadow-xl hover:shadow-[var(--primary)]/30 transition-all"
       >
-        + Add Task
-      </button>
+        <PlusIcon className="w-4 h-4" />
+        Add Task
+      </motion.button>
     </div>
   );
 }
