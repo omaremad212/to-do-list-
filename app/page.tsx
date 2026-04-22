@@ -26,7 +26,7 @@ const features = [
   {
     icon: <ShieldCheckIcon className="w-6 h-6" />,
     title: 'Enterprise Security',
-    description: 'Bank-level encryption and secure authentication protect your data.',
+    description: 'Industry-leading encryption and secure authentication protect your data.',
   },
   {
     icon: <CloudIcon className="w-6 h-6" />,
@@ -36,7 +36,7 @@ const features = [
   {
     icon: <PaintBrushIcon className="w-6 h-6" />,
     title: 'Beautiful Design',
-    description: '精心设计的现代化界面，流畅的动画和精美的视觉效果。',
+    description: 'Modern interface with smooth animations and stunning visuals.',
   },
   {
     icon: <UserGroupIcon className="w-6 h-6" />,
@@ -54,7 +54,7 @@ const howItWorks = [
   {
     step: '01',
     title: 'Create Account',
-    description: 'Sign up in seconds with your email or Google account.',
+    description: 'Sign up in seconds with your email.',
   },
   {
     step: '02',
@@ -63,13 +63,13 @@ const howItWorks = [
   },
   {
     step: '03',
-    title: 'Focus & Execute',
-    description: 'Complete tasks and track your progress effortlessly.',
+    title: 'Get Things Done',
+    description: 'Complete tasks and track your progress.',
   },
   {
     step: '04',
     title: 'Achieve More',
-    description: 'See your productivity soar and accomplish your goals.',
+    description: 'See your productivity soar and accomplish goals.',
   },
 ];
 
@@ -78,14 +78,14 @@ const testimonials = [
     name: 'Sarah Chen',
     role: 'Product Manager at TechCorp',
     image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop',
-    content: 'TaskFlow彻底改变了我的日常工作流程。界面精美，功能强大，是我用过的最好的任务管理工具。',
+    content: 'TaskFlow completely changed my daily workflow. Beautiful interface and powerful features - best task manager I have ever used.',
     rating: 5,
   },
   {
     name: 'Marcus Johnson',
     role: 'Startup Founder',
     image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
-    content: 'Demo模式让我可以立即体验产品功能。现在我的团队每个人都在使用TaskFlow。',
+    content: 'The Demo mode let me try the product instantly. Now my entire team uses TaskFlow every day.',
     rating: 5,
   },
   {
@@ -106,7 +106,7 @@ const pricingPlans = [
       'Up to 50 tasks',
       'Basic priorities',
       'Dark mode',
-      'Mobile app access',
+      'Mobile access',
       'Email support',
     ],
     cta: 'Get Started',
@@ -153,7 +153,7 @@ const faqs = [
   },
   {
     question: 'Is my data secure?',
-    answer: 'Absolutely. We use industry-leading encryption and secure authentication. Your data is stored in encrypted databases and never shared.',
+    answer: 'Absolutely. We use industry-leading encryption and secure authentication. Your data is stored in encrypted databases and never shared with anyone.',
   },
   {
     question: 'Can I switch from Demo to a real account?',
@@ -385,7 +385,7 @@ export default function LandingPage() {
               Get Started in 4 Simple Steps
             </h2>
             <p className="text-xl text-slate-400">
-              You'll be up and running in minutes
+              You will be up and running in minutes
             </p>
           </div>
 

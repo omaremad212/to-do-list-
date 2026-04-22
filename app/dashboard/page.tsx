@@ -87,6 +87,7 @@ export default function DashboardPage() {
   }
 
   if (!session) {
+    router.push('/login');
     return null;
   }
 
@@ -104,7 +105,7 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 rounded-lg mb-4">
                   <SparklesIcon className="w-5 h-5 text-indigo-500" />
                   <span className="text-sm text-indigo-700 dark:text-indigo-300">
-                    Demo Mode - 你正在体验演示数据，可以随意操作
+                    Demo Mode - You are exploring with sample data. Feel free to make changes!
                   </span>
                 </div>
               )}

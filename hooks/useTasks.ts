@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useEffect, useCallback, use } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { Task, TaskFilter, TaskFormData } from '@/types';
 
 const DEMO_TASKS: Task[] = [
   {
     id: 'demo-1',
-    title: '完成产品需求文档 PRD',
-    description: '撰写新功能的产品需求文档，包括用户故事和功能规格说明。需要包含详细的用例描述和验收标准。',
+    title: 'Complete Product Requirements Document',
+    description: 'Write detailed PRD for new feature including user stories and acceptance criteria.',
     completed: false,
     priority: 'high',
     dueDate: new Date(),
@@ -18,8 +18,8 @@ const DEMO_TASKS: Task[] = [
   },
   {
     id: 'demo-2',
-    title: '审核 UI 设计稿',
-    description: '检查新界面的设计稿，确保符合设计规范和用户体验最佳实践。与设计团队确认颜色和间距。',
+    title: 'Review UI Design Mockups',
+    description: 'Check new interface designs for consistency and UX best practices.',
     completed: true,
     priority: 'high',
     dueDate: new Date(Date.now() - 86400000),
@@ -29,8 +29,8 @@ const DEMO_TASKS: Task[] = [
   },
   {
     id: 'demo-3',
-    title: '团队周会演示准备',
-    description: '准备本周的工作进展演示，包含关键指标和下阶段计划。准备好 PPT 和数据图表。',
+    title: 'Team Weekly Meeting Preparation',
+    description: 'Prepare presentation with progress metrics and next phase plans.',
     completed: false,
     priority: 'medium',
     dueDate: new Date(Date.now() + 86400000),
@@ -40,8 +40,8 @@ const DEMO_TASKS: Task[] = [
   },
   {
     id: 'demo-4',
-    title: '代码审查 PR #42',
-    description: 'Review 新功能的 Pull Request，确保代码质量和测试覆盖。检查单元测试和集成测试。',
+    title: 'Code Review PR #42',
+    description: 'Review new feature pull request for code quality and test coverage.',
     completed: false,
     priority: 'medium',
     dueDate: new Date(Date.now() + 172800000),
@@ -51,8 +51,8 @@ const DEMO_TASKS: Task[] = [
   },
   {
     id: 'demo-5',
-    title: '更新技术文档',
-    description: '更新 API 文档和开发者指南，反映最新的变更。包括新的端点和参数说明。',
+    title: 'Update Technical Documentation',
+    description: 'Update API docs and developer guides with latest changes.',
     completed: false,
     priority: 'low',
     dueDate: new Date(Date.now() + 432000000),
@@ -62,8 +62,8 @@ const DEMO_TASKS: Task[] = [
   },
   {
     id: 'demo-6',
-    title: '优化数据库查询性能',
-    description: '分析并优化慢查询，提升页面加载速度。添加必要的索引和缓存策略。',
+    title: 'Optimize Database Query Performance',
+    description: 'Analyze and optimize slow queries to improve page load times.',
     completed: true,
     priority: 'medium',
     dueDate: new Date(Date.now() - 172800000),
@@ -73,8 +73,8 @@ const DEMO_TASKS: Task[] = [
   },
   {
     id: 'demo-7',
-    title: '集成第三方支付API',
-    description: '集成 Stripe 支付网关，支持信用卡和 PayPal。处理 webhooks 回调。',
+    title: 'Integrate Payment Gateway',
+    description: 'Integrate Stripe for credit card and PayPal processing.',
     completed: false,
     priority: 'high',
     dueDate: new Date(Date.now() + 259200000),
@@ -84,8 +84,8 @@ const DEMO_TASKS: Task[] = [
   },
   {
     id: 'demo-8',
-    title: '用户反馈分析',
-    description: '分析最近一周的用户反馈，提炼改进建议。准备用户体验改进报告。',
+    title: 'User Feedback Analysis',
+    description: 'Analyze recent user feedback and compile improvement suggestions.',
     completed: true,
     priority: 'low',
     dueDate: new Date(Date.now() - 86400000),
@@ -95,8 +95,8 @@ const DEMO_TASKS: Task[] = [
   },
   {
     id: 'demo-9',
-    title: '安全漏洞修复',
-    description: '修复发现的 XSS 漏洞，确保用户数据安全。更新安全头和输入验证。',
+    title: 'Security Vulnerability Fix',
+    description: 'Fix XSS vulnerability to ensure user data security.',
     completed: true,
     priority: 'high',
     dueDate: new Date(),
@@ -106,8 +106,8 @@ const DEMO_TASKS: Task[] = [
   },
   {
     id: 'demo-10',
-    title: '移动端响应式适配',
-    description: '确保应用在手机和平板上有良好的用户体验。测试各种屏幕尺寸。',
+    title: 'Mobile Responsive Adaptation',
+    description: 'Ensure app works well on mobile and tablet devices.',
     completed: false,
     priority: 'medium',
     dueDate: new Date(Date.now() + 345600000),
@@ -117,8 +117,8 @@ const DEMO_TASKS: Task[] = [
   },
   {
     id: 'demo-11',
-    title: '设置 CI/CD 流水线',
-    description: '配置 GitHub Actions 实现自动化测试和部署。设置环境变量和密钥。',
+    title: 'Set Up CI/CD Pipeline',
+    description: 'Configure GitHub Actions for automated testing and deployment.',
     completed: false,
     priority: 'high',
     dueDate: new Date(Date.now() + 432000000),
@@ -128,8 +128,8 @@ const DEMO_TASKS: Task[] = [
   },
   {
     id: 'demo-12',
-    title: '性能监控仪表板',
-    description: '创建实时性能监控仪表板，跟踪关键指标。集成 Sentry 和数据分析。',
+    title: 'Performance Monitoring Dashboard',
+    description: 'Create real-time monitoring dashboard with key metrics.',
     completed: false,
     priority: 'low',
     dueDate: new Date(Date.now() + 604800000),
@@ -139,8 +139,8 @@ const DEMO_TASKS: Task[] = [
   },
   {
     id: 'demo-13',
-    title: '用户访谈准备',
-    description: '准备下周用户访谈的问题和议程。联系 5 位活跃用户。',
+    title: 'User Interview Preparation',
+    description: 'Prepare questions and agenda for user interviews next week.',
     completed: false,
     priority: 'medium',
     dueDate: new Date(Date.now() + 216000000),
@@ -150,8 +150,8 @@ const DEMO_TASKS: Task[] = [
   },
   {
     id: 'demo-14',
-    title: 'A/B 测试设计',
-    description: '设计新首页的 A/B 测试方案。确定测试目标和成功指标。',
+    title: 'A/B Test Design',
+    description: 'Design A/B test for new homepage with clear success metrics.',
     completed: false,
     priority: 'medium',
     dueDate: new Date(Date.now() + 518400000),
@@ -161,8 +161,8 @@ const DEMO_TASKS: Task[] = [
   },
   {
     id: 'demo-15',
-    title: '月度报告生成',
-    description: '生成上月的运营报告，包括用户增长、留存和收入数据。',
+    title: 'Monthly Report Generation',
+    description: 'Generate last month operational report with growth and retention data.',
     completed: false,
     priority: 'high',
     dueDate: new Date(Date.now() + 86400000),
@@ -179,19 +179,21 @@ export function useTasks() {
   const [filter, setFilter] = useState<TaskFilter>('all');
   const [search, setSearch] = useState('');
 
-  const isDemo = (session?.user as any)?.isDemo;
+  const isDemo = (session?.user as any)?.isDemo || session?.user?.email === 'demo@taskflow.app';
 
-  const fetchTasks = useCallback(async () => {
+  useEffect(() => {
     if (isDemo) {
       setTasks(DEMO_TASKS);
       setLoading(false);
-      return;
-    }
-
-    if (!session?.user?.email) {
+    } else if (session?.user?.email) {
+      fetchTasks();
+    } else if (!session) {
       setLoading(false);
-      return;
     }
+  }, [isDemo, session?.user?.email]);
+
+  const fetchTasks = useCallback(async () => {
+    if (!session?.user?.email || isDemo) return;
 
     setLoading(true);
     try {
@@ -217,10 +219,6 @@ export function useTasks() {
       setLoading(false);
     }
   }, [session?.user?.email, isDemo]);
-
-  useEffect(() => {
-    fetchTasks();
-  }, [fetchTasks]);
 
   const addTask = async (data: TaskFormData) => {
     if (isDemo) {
