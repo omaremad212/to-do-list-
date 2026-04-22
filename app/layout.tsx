@@ -1,9 +1,7 @@
-'use client';
-
-import { useSession } from 'next-auth/react';
+import type { Metadata } from 'next';
+import './globals.css';
 import Providers from '@/components/providers/Providers';
 import { Toaster } from 'react-hot-toast';
-import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'TaskFlow - Modern To-Do List',
