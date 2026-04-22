@@ -24,11 +24,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     return (
-      <motion.button
+      <button
         ref={ref}
         disabled={disabled || loading}
-        whileHover={{ scale: disabled || loading ? 1 : 1.02 }}
-        whileTap={{ scale: disabled || loading ? 1 : 0.98 }}
         className={clsx(
           'relative inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden',
           {
@@ -48,7 +46,11 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         )}
         {...props}
       >
-        <span className="relative z-10 flex items-center gap-2">
+        <motion.span
+          className="relative z-10 flex items-center gap-2"
+          whileHover={disabled || loading ? {} : { scale: 1 }}
+          whileTap={disabled || loading ? {} : { scale: 0.98 }}
+        >
           {loading && (
             <svg
               className="animate-spin h-4 w-4"
@@ -71,9 +73,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             </svg>
           )}
           {children}
-        </span>
+        </motion.span>
         <span className="absolute inset-0 bg-white/10 opacity-0 hover:opacity-100 transition-opacity duration-200" />
-      </motion.button>
+      </button>
     );
   }
 );
