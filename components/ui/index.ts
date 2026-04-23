@@ -7,5 +7,5 @@ export { default as Checkbox } from './Checkbox';
 export { default as Skeleton, TaskSkeleton } from './Skeleton';
 export { default as EmptyState } from './EmptyState';
 export { Badge, PriorityBadge } from './Badge';
-export { LineChart, BarChart, DonutChart, StatCard } from './Charts';
+export { LineChart, DonutChart, StatCard } from './Charts';
 export { RecentActivity, QuickStats, ProductivityScore } from './Widgets';

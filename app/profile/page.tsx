@@ -7,32 +7,14 @@ import { Navbar } from '@/components/layout';
 import { motion } from 'framer-motion';
 import { clsx } from 'clsx';
 import {
-  UserIcon,
-  EnvelopeIcon,
+  UserCircleIcon,
   BellIcon,
   ShieldCheckIcon,
   PaintBrushIcon,
-  DevicePhoneMobileIcon,
   TrashIcon,
-  ArrowRightOnRectangleIcon,
   CheckCircleIcon,
-} from 'lucide-react';
+} from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui';
-
-interface SettingSection {
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  fields: SettingField[];
-}
-
-interface SettingField {
-  label: string;
-  description?: string;
-  type: 'toggle' | 'select' | 'input';
-  value: boolean | string;
-  options?: { value: string; label: string }[];
-}
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
@@ -40,7 +22,7 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState('profile');
 
   const tabs = [
-    { id: 'profile', label: 'Profile', icon: UserIcon },
+    { id: 'profile', label: 'Profile', icon: UserCircleIcon },
     { id: 'notifications', label: 'Notifications', icon: BellIcon },
     { id: 'appearance', label: 'Appearance', icon: PaintBrushIcon },
     { id: 'security', label: 'Security', icon: ShieldCheckIcon },

@@ -3,10 +3,10 @@
 import { motion } from 'framer-motion';
 import { clsx } from 'clsx';
 import {
-  TrendingUp as TrendingUpIcon,
-  TrendingDown as TrendingDownIcon,
-  Minus as MinusIcon,
-} from 'lucide-react';
+  TrendingUpIcon,
+  TrendingDownIcon,
+  ArrowUpIcon,
+} from '@heroicons/react/24/outline';
 
 interface ChartData {
   label: string;
@@ -67,60 +67,7 @@ export function LineChart({
           vectorEffect="non-scaling-stroke"
           className="transition-all duration-500"
         />
-        {points.map((point, i) => {
-          const [x, y] = point.split(',');
-          return (
-            <circle
-              key={i}
-              cx={x}
-              cy={y}
-              r="1"
-              fill={color}
-              className="opacity-0 hover:opacity-100 transition-opacity"
-            />
-          );
-        })}
       </svg>
-    </div>
-  );
-}
-
-interface BarChartProps {
-  data: ChartData[];
-  height?: number;
-  color?: string;
-}
-
-export function BarChart({
-  data,
-  height = 200,
-  color = 'var(--primary)',
-}: BarChartProps) {
-  const maxValue = Math.max(...data.map((d) => d.value));
-  const range = maxValue || 1;
-
-  return (
-    <div className="w-full flex items-end gap-2" style={{ height }}>
-      {data.map((d, i) => {
-        const barHeight = (d.value / range) * 100;
-        return (
-          <div key={i} className="flex-1 flex flex-col items-center gap-1">
-            <motion.div
-              initial={{ height: 0 }}
-              animate={{ height: `${barHeight}%` }}
-              transition={{ duration: 0.5, delay: i * 0.05 }}
-              className="w-full rounded-lg"
-              style={{
-                backgroundColor: color,
-                minHeight: '4px',
-              }}
-            />
-            <span className="text-[8px] text-[var(--muted-foreground)] truncate max-w-full">
-              {d.label}
-            </span>
-          </div>
-        );
-      })}
     </div>
   );
 }
@@ -198,7 +145,7 @@ export function StatCard({
       ? TrendingUpIcon
       : trend === 'down'
         ? TrendingDownIcon
-        : MinusIcon;
+        : ArrowUpIcon;
 
   const trendColor =
     trend === 'up'

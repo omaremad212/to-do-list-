@@ -7,21 +7,16 @@ import { Task } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { format, subDays, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
+import { format, subDays, eachDayOfInterval } from 'date-fns';
 import { clsx } from 'clsx';
 import {
   CheckCircleIcon,
   ClockIcon,
-  FireIcon,
-  TrophyIcon,
   BoltIcon,
-  ArrowUpIcon,
   ChartBarIcon,
   CalendarIcon,
-  TargetIcon,
-  TrendUpIcon,
-} from 'lucide-react';
-import { LineChart, StatCard, BarChart, DonutChart } from '@/components/ui/Charts';
+} from '@heroicons/react/24/outline';
+import { LineChart, StatCard, DonutChart } from '@/components/ui/Charts';
 import { RecentActivity, QuickStats, ProductivityScore } from '@/components/ui/Widgets';
 
 export default function DashboardPage() {
@@ -88,7 +83,7 @@ export default function DashboardPage() {
   const chartData = generateActivityData();
   const priorityData = generatePriorityData();
 
-  const recentActivities: Activity[] = tasks
+  const recentActivities = tasks
     .slice(0, 10)
     .map((t) => ({
       id: t.id,

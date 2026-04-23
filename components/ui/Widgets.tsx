@@ -5,13 +5,13 @@ import { clsx } from 'clsx';
 import { motion } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import {
-  CheckCircle as CheckCircleIcon,
-  Clock as ClockIcon,
-  Flame as FlameIcon,
-  Trophy as TrophyIcon,
-  Bolt as BoltIcon,
-  ArrowUp as ArrowUpIcon,
-} from 'lucide-react';
+  CheckCircleIcon,
+  ClockIcon,
+  FireIcon,
+  TrophyIcon,
+  BoltIcon,
+  ArrowUpIcon,
+} from '@heroicons/react/24/outline';
 
 interface Activity {
   id: string;
@@ -31,7 +31,7 @@ export function RecentActivity({ activities }: RecentActivityProps) {
       case 'completed':
         return <CheckCircleIcon className="w-4 h-4 text-emerald-500" />;
       case 'created':
-        return <BoltIcon className="w-4 h-4 text-[var(--primary)]" />;
+        return <BoltIcon className="w-4 h-4 text-indigo-500" />;
       case 'updated':
         return <ArrowUpIcon className="w-4 h-4 text-amber-500" />;
       default:
@@ -83,7 +83,6 @@ interface QuickStatsProps {
 export function QuickStats({ tasks }: QuickStatsProps) {
   const completed = tasks.filter((t) => t.completed).length;
   const pending = tasks.filter((t) => !t.completed).length;
-  const highPriority = tasks.filter((t) => t.priority === 'high' && !t.completed).length;
   const completionRate = tasks.length > 0 ? Math.round((completed / tasks.length) * 100) : 0;
   const streak = 5;
 
@@ -96,7 +95,7 @@ export function QuickStats({ tasks }: QuickStatsProps) {
       color: 'text-amber-500 bg-amber-500/10',
     },
     {
-      icon: <FlameIcon className="w-5 h-5" />,
+      icon: <FireIcon className="w-5 h-5" />,
       value: streak,
       suffix: ' days',
       label: 'Current Streak',
@@ -164,7 +163,7 @@ export function ProductivityScore({ score, trend }: ProductivityScoreProps) {
   const { grade, color } = getGrade(score);
 
   return (
-    <div className="p-6 rounded-2xl bg-gradient-to-br from-[var(--primary)] to-purple-600 text-white">
+    <div className="p-6 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white">
       <div className="flex items-center justify-between mb-4">
         <span className="text-sm font-medium text-white/80">Productivity Score</span>
         <span className="text-xs text-white/60">This week</span>
