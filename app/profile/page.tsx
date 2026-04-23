@@ -14,12 +14,14 @@ import {
   TrashIcon,
   CheckCircleIcon,
 } from '@heroicons/react/24/outline';
+import { useTheme } from '@/components/providers/ThemeProvider';
 import { Button } from '@/components/ui';
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('profile');
+  const { themeMode, setThemeMode, appearance, updateAppearance } = useTheme();
+  const [activeTab, setActiveTab] = useState('appearance');
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: UserCircleIcon },
@@ -34,12 +36,6 @@ export default function ProfilePage() {
     emailWeeklyDigest: true,
     pushNotifications: true,
     taskDueAlerts: true,
-  });
-
-  const [appearance, setAppearance] = useState({
-    theme: 'system',
-    compactMode: false,
-    showAnimations: true,
   });
 
   useEffect(() => {
@@ -259,9 +255,9 @@ export default function ProfilePage() {
                       </h2>
                       
                       <div className="space-y-4">
-                        {[
+{[
                           {
-                            key: 'theme',
+                            key: 'themeMode',
                             label: 'Theme',
                             options: [
                               { value: 'light', label: 'Light' },
@@ -281,15 +277,10 @@ export default function ProfilePage() {
                               {item.options?.map((opt) => (
                                 <button
                                   key={opt.value}
-                                  onClick={() =>
-                                    setAppearance({
-                                      ...appearance,
-                                      theme: opt.value,
-                                    })
-                                  }
+                                  onClick={() => setThemeMode(opt.value as 'light' | 'dark' | 'system')}
                                   className={clsx(
                                     'px-4 py-2 rounded-lg font-medium transition-all',
-                                    appearance.theme === opt.value
+                                    themeMode === opt.value
                                       ? 'gradient-primary text-white'
                                       : 'bg-[var(--card)] text-[var(--foreground)]'
                                   )}
@@ -314,25 +305,11 @@ export default function ProfilePage() {
                             </span>
                             <button
                               onClick={() =>
-                                setAppearance({
-                                  ...appearance,
+                                updateAppearance({
                                   [item.key]:
-                                    !appearance[item.key as keyof typeof appearance],
-                                })
-                              }
-                              className={clsx(
-                                'w-12 h-7 rounded-full transition-all relative',
-                                appearance[item.key as keyof typeof appearance]
-                                  ? 'gradient-primary'
-                                  : 'bg-[var(--border)]'
-                              )}
-                            >
-                              <div
-                                className={clsx(
-                                  'absolute top-1 w-5 h-5 rounded-full bg-white shadow transition-all',
-                                  appearance[item.key as keyof typeof appearance]
-                                    ? 'left-6'
-                                    : 'left-1'
+                                    appearance[item.key as boolean]
+                                  ? 'left-6'
+                                  : 'left-1'
                                 )}
                               />
                             </button>

@@ -6,14 +6,14 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { EnvelopeIcon, LockClosedIcon, UserIcon, ArrowRightIcon, UserGroupIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { EnvelopeIcon, LockClosedIcon, UserIcon, ArrowRightIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 
 function LoginContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const isDemo = searchParams?.get('demo') === 'true';
+  const isDemoParam = searchParams?.get('demo') === 'true';
   
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
@@ -33,8 +33,7 @@ function LoginContent() {
     setError('');
     
     const result = await signIn('credentials', {
-      email: 'demo@taskflow.app',
-      password: 'demo123',
+      isDemo: 'true',
       redirect: false,
     });
 
@@ -57,6 +56,14 @@ function LoginContent() {
       return;
     }
 
+    // For demo, check if this is the demo email
+    if (email.toLowerCase() === 'demo@taskflow.app') {
+      await handleDemoLogin();
+      return;
+    }
+
+    // In production, this would validate against a real auth provider
+    // For now, we'll create a mock session for demo purposes
     const result = await signIn('credentials', {
       email,
       password,
@@ -65,10 +72,10 @@ function LoginContent() {
 
     if (result?.error) {
       setError('Invalid email or password');
-      setLoading(false);
     } else {
       router.push('/dashboard');
     }
+    setLoading(false);
   };
 
   if (status === 'loading') {
@@ -104,10 +111,10 @@ function LoginContent() {
 
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8">
           <h1 className="text-2xl font-bold text-white text-center mb-2">
-            {isDemo ? 'Try TaskFlow Demo' : mode === 'login' ? 'Welcome Back' : 'Create Account'}
+            {isDemoParam ? 'Try TaskFlow Demo' : mode === 'login' ? 'Welcome Back' : 'Create Account'}
           </h1>
           <p className="text-slate-400 text-center mb-6">
-            {isDemo ? 'Explore with sample data' : mode === 'login' ? 'Sign in to your account' : 'Start using TaskFlow for free'}
+            {isDemoParam ? 'Explore with sample data' : mode === 'login' ? 'Sign in to your account' : 'Start using TaskFlow for free'}
           </p>
 
           {/* Demo Button */}
