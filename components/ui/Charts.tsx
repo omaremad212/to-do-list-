@@ -3,9 +3,9 @@
 import { motion } from 'framer-motion';
 import { clsx } from 'clsx';
 import {
-  TrendingUpIcon,
-  TrendingDownIcon,
-  ArrowUpIcon,
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon,
+  MinusIcon,
 } from '@heroicons/react/24/outline';
 
 interface ChartData {
@@ -142,10 +142,10 @@ export function StatCard({
 }: StatCardProps) {
   const TrendIcon =
     trend === 'up'
-      ? TrendingUpIcon
+      ? ArrowTrendingUpIcon
       : trend === 'down'
-        ? TrendingDownIcon
-        : ArrowUpIcon;
+        ? ArrowTrendingDownIcon
+        : MinusIcon;
 
   const trendColor =
     trend === 'up'
