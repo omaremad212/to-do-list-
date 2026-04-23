@@ -59,11 +59,17 @@ function LoginContent() {
     const result = await signIn('credentials', {
       email,
       password,
+      mode: mode,
+      isDemo: 'false',
       redirect: false,
     });
 
     if (result?.error) {
-      setError('Invalid email or password');
+      if (mode === 'signup') {
+        setError('Could not create account. Email may already be in use.');
+      } else {
+        setError('Invalid email or password');
+      }
     } else {
       router.push('/dashboard');
     }

@@ -86,33 +86,34 @@ export function DonutChart({
   const total = data.reduce((sum, d) => sum + d.value, 0);
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
+
   let currentOffset = 0;
+  const segments = data.map((d) => {
+    const percentage = total > 0 ? d.value / total : 0;
+    const dashLength = percentage * circumference;
+    const dashOffset = currentOffset;
+    currentOffset += dashLength;
+    return { ...d, dashLength, dashOffset };
+  });
 
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        {data.map((d, i) => {
-          const percentage = total > 0 ? d.value / total : 0;
-          const dashLength = percentage * circumference;
-          const dashOffset = currentOffset;
-          currentOffset += dashLength;
-
-          return (
-            <circle
-              key={i}
-              cx={size / 2}
-              cy={size / 2}
-              r={radius}
-              fill="none"
-              stroke={d.color}
-              strokeWidth={strokeWidth}
-              strokeDasharray={`${dashLength} ${circumference - dashLength}`}
-              strokeDashoffset={-dashOffset}
-              className="transition-all duration-500"
-              strokeLinecap="round"
-            />
-          );
-        })}
+        {segments.map((d, i) => (
+          <circle
+            key={i}
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke={d.color}
+            strokeWidth={strokeWidth}
+            strokeDasharray={`${d.dashLength} ${circumference - d.dashLength}`}
+            strokeDashoffset={-d.dashOffset}
+            className="transition-all duration-500"
+            strokeLinecap="round"
+          />
+        ))}
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
         <span className="text-2xl font-bold text-[var(--foreground)]">

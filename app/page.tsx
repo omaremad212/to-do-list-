@@ -435,7 +435,7 @@ export default function LandingPage() {
                     <StarIcon key={j} className="w-5 h-5 text-amber-400" />
                   ))}
                 </div>
-                <p className="text-slate-300 mb-4">"{testimonial.content}"</p>
+                <p className="text-slate-300 mb-4">&ldquo;{testimonial.content}&rdquo;</p>
                 <div className="flex items-center gap-3">
                   <img src={testimonial.image} alt={testimonial.name} className="w-10 h-10 rounded-full" />
                   <div>

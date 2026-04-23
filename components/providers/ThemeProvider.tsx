@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 
 type Theme = 'light' | 'dark';
 type ThemeMode = 'light' | 'dark' | 'system';
@@ -18,118 +18,152 @@ interface ThemeContextType {
   setThemeMode: (mode: ThemeMode) => void;
   appearance: AppearanceSettings;
   updateAppearance: (settings: Partial<AppearanceSettings>) => void;
+  mounted: boolean;
 }
+
+const defaultAppearance: AppearanceSettings = {
+  themeMode: 'system',
+  compactMode: false,
+  showAnimations: true,
+};
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+function getSystemTheme(): Theme {
+  if (typeof window !== 'undefined' && window.matchMedia) {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  return 'light';
+}
+
+function applyThemeToDocument(theme: Theme) {
+  if (typeof document !== 'undefined') {
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add(theme);
+  }
+}
+
+function applySettingsToDocument(compactMode: boolean, showAnimations: boolean) {
+  if (typeof document !== 'undefined') {
+    document.documentElement.setAttribute('data-compact', compactMode ? 'true' : 'false');
+    document.documentElement.setAttribute('data-animations', showAnimations ? 'true' : 'false');
+  }
+}
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('light');
   const [mounted, setMounted] = useState(false);
-  const [appearance, setAppearance] = useState<AppearanceSettings>({
-    themeMode: 'system',
-    compactMode: false,
-    showAnimations: true,
-  });
+  const [theme, setTheme] = useState<Theme>('light');
+  const [appearance, setAppearance] = useState<AppearanceSettings>(defaultAppearance);
+
+  const resolveTheme = useCallback((mode: ThemeMode): Theme => {
+    if (mode === 'system') {
+      return getSystemTheme();
+    }
+    return mode;
+  }, []);
 
   useEffect(() => {
     setMounted(true);
-    
-    // Load appearance settings from localStorage
-    const stored = localStorage.getItem('taskflow-appearance');
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      setAppearance(parsed);
-    }
-    
-    // Load theme
-    const storedTheme = localStorage.getItem('taskflow-theme') as Theme | null;
-    if (storedTheme) {
-      setTheme(storedTheme);
-      document.documentElement.classList.add(storedTheme);
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setTheme('dark');
-      document.documentElement.classList.add('dark');
+
+    const storedAppearance = localStorage.getItem('taskflow-appearance');
+    if (storedAppearance) {
+      try {
+        const parsed = JSON.parse(storedAppearance) as AppearanceSettings;
+        setAppearance(parsed);
+        const resolvedTheme = resolveTheme(parsed.themeMode);
+        setTheme(resolvedTheme);
+        applyThemeToDocument(resolvedTheme);
+        applySettingsToDocument(parsed.compactMode, parsed.showAnimations);
+      } catch (e) {
+        console.error('Failed to parse appearance settings', e);
+        const resolvedTheme = resolveTheme('system');
+        setTheme(resolvedTheme);
+        applyThemeToDocument(resolvedTheme);
+        applySettingsToDocument(false, true);
+      }
     } else {
-      document.documentElement.classList.add('light');
+      const resolvedTheme = resolveTheme('system');
+      setTheme(resolvedTheme);
+      applyThemeToDocument(resolvedTheme);
+      applySettingsToDocument(false, true);
     }
-  }, []);
+  }, [resolveTheme]);
 
-  const applyTheme = (newTheme: Theme) => {
-    setTheme(newTheme);
-    document.documentElement.classList.remove('light', 'dark');
-    document.documentElement.classList.add(newTheme);
-    localStorage.setItem('taskflow-theme', newTheme);
-  };
-
-  const toggleTheme = () => {
-    applyTheme(theme === 'light' ? 'dark' : 'light');
-  };
-
-  const setThemeMode = (mode: ThemeMode) => {
-    const newAppearance = { ...appearance, themeMode: mode };
-    setAppearance(newAppearance);
-    localStorage.setItem('taskflow-appearance', JSON.stringify(newAppearance));
-    
-    if (mode === 'system') {
-      const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      applyTheme(systemDark ? 'dark' : 'light');
-    } else {
-      applyTheme(mode);
-    }
-  };
-
-  const updateAppearance = (settings: Partial<AppearanceSettings>) => {
-    const newAppearance = { ...appearance, ...settings };
-    setAppearance(newAppearance);
-    localStorage.setItem('taskflow-appearance', JSON.stringify(newAppearance));
-  };
-
-  if (!mounted) {
-    return <>{children}</>;
-  }
-
-  // Listen for system theme changes
   useEffect(() => {
-    if (appearance.themeMode !== 'system') return;
+    if (!mounted) return;
     
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (e: MediaQueryListEvent) => {
-      applyTheme(e.matches ? 'dark' : 'light');
+      if (appearance.themeMode === 'system') {
+        const newTheme = e.matches ? 'dark' : 'light';
+        setTheme(newTheme);
+        applyThemeToDocument(newTheme);
+      }
     };
     
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [appearance.themeMode]);
+  }, [mounted, appearance.themeMode]);
+
+  const applyTheme = useCallback((newTheme: Theme) => {
+    setTheme(newTheme);
+    applyThemeToDocument(newTheme);
+    localStorage.setItem('taskflow-theme', newTheme);
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    const newTheme: Theme = theme === 'light' ? 'dark' : 'light';
+    const newAppearance: AppearanceSettings = { ...appearance, themeMode: newTheme };
+    setAppearance(newAppearance);
+    applyTheme(newTheme);
+    localStorage.setItem('taskflow-appearance', JSON.stringify(newAppearance));
+  }, [theme, appearance, applyTheme]);
+
+  const setThemeMode = useCallback((mode: ThemeMode) => {
+    const newAppearance = { ...appearance, themeMode: mode };
+    setAppearance(newAppearance);
+    localStorage.setItem('taskflow-appearance', JSON.stringify(newAppearance));
+    
+    const newTheme = resolveTheme(mode);
+    applyTheme(newTheme);
+    applySettingsToDocument(newAppearance.compactMode, newAppearance.showAnimations);
+  }, [appearance, resolveTheme, applyTheme]);
+
+  const updateAppearance = useCallback((settings: Partial<AppearanceSettings>) => {
+    const newAppearance = { ...appearance, ...settings };
+    setAppearance(newAppearance);
+    localStorage.setItem('taskflow-appearance', JSON.stringify(newAppearance));
+    applySettingsToDocument(newAppearance.compactMode, newAppearance.showAnimations);
+  }, [appearance]);
+
+  const contextValue: ThemeContextType = {
+    theme,
+    themeMode: appearance.themeMode,
+    toggleTheme,
+    setThemeMode,
+    appearance,
+    updateAppearance,
+    mounted,
+  };
 
   return (
-    <ThemeContext.Provider value={{ 
-      theme, 
-      themeMode: appearance.themeMode,
-      toggleTheme, 
-      setThemeMode,
-      appearance,
-      updateAppearance
-    }}>
-      <div 
-        data-compact={appearance.compactMode} 
-        data-animations={appearance.showAnimations}
-      >
-        {children}
-      </div>
+    <ThemeContext.Provider value={contextValue}>
+      {children}
     </ThemeContext.Provider>
   );
 }
 
-export function useTheme() {
+export function useTheme(): ThemeContextType {
   const context = useContext(ThemeContext);
   if (!context) {
     return {
-      theme: 'light' as Theme,
-      themeMode: 'system' as ThemeMode,
+      theme: 'light',
+      themeMode: 'system',
       toggleTheme: () => {},
       setThemeMode: () => {},
-      appearance: { themeMode: 'system', compactMode: false, showAnimations: true },
+      appearance: defaultAppearance,
       updateAppearance: () => {},
+      mounted: false,
     };
   }
   return context;

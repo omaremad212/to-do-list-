@@ -1,14 +1,17 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
-      name: 'Credentials',
+      id: "credentials",
+      name: "Credentials",
       credentials: {
-        isDemo: { label: 'isDemo', type: 'boolean' },
+        isDemo: { label: 'isDemo', type: 'string' },
         email: { label: 'email', type: 'string' },
         password: { label: 'password', type: 'string' },
+        mode: { label: 'mode', type: 'string' },
       },
       async authorize(credentials) {
         if (credentials?.isDemo === 'true') {
@@ -18,19 +21,44 @@ export const authOptions: NextAuthOptions = {
             name: 'Demo User',
           };
         }
-        if (credentials?.email && credentials?.password) {
-          return {
-            id: credentials.email,
-            email: credentials.email,
-            name: credentials.email.split('@')[0],
-          };
+
+        if (!credentials?.email || !credentials?.password) {
+          return null;
         }
-        return null;
+
+        try {
+          const { getFirebaseAuth } = await import('./firebase');
+          const firebaseAuth = await getFirebaseAuth();
+          let userCredential;
+
+          if (credentials.mode === 'signup') {
+            userCredential = await createUserWithEmailAndPassword(
+              firebaseAuth,
+              credentials.email,
+              credentials.password
+            );
+          } else {
+            userCredential = await signInWithEmailAndPassword(
+              firebaseAuth,
+              credentials.email,
+              credentials.password
+            );
+          }
+
+          return {
+            id: userCredential.user.uid,
+            email: userCredential.user.email,
+            name: userCredential.user.displayName || credentials.email.split('@')[0],
+          };
+        } catch (error: unknown) {
+          console.error("Firebase auth error:", error);
+          return null;
+        }
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user, trigger, session }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.isDemo = user.email === 'demo@taskflow.app';
@@ -39,14 +67,15 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).id = token.id as string;
-        (session.user as any).isDemo = token.isDemo as boolean;
+        (session.user as { id?: string; isDemo?: boolean }).id = token.id as string;
+        (session.user as { id?: string; isDemo?: boolean }).isDemo = token.isDemo as boolean;
       }
       return session;
     },
   },
   pages: {
     signIn: '/login',
+    error: '/login',
   },
   session: {
     strategy: 'jwt',

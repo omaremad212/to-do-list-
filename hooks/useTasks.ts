@@ -179,28 +179,18 @@ export function useTasks() {
   const [filter, setFilter] = useState<TaskFilter>('all');
   const [search, setSearch] = useState('');
 
-  const isDemo = (session?.user as any)?.isDemo === true;
-
-  useEffect(() => {
-    if (isDemo) {
-      setTasks(DEMO_TASKS);
-      setLoading(false);
-    } else if (session?.user?.email) {
-      fetchTasks();
-    } else if (!session) {
-      setLoading(false);
-    }
-  }, [isDemo, session?.user?.email]);
+  const isDemo = (session?.user as { isDemo?: boolean })?.isDemo === true;
+  const userEmail = session?.user?.email as string | undefined;
 
   const fetchTasks = useCallback(async () => {
-    if (!session?.user?.email || isDemo) return;
+    if (!userEmail || isDemo) return;
 
     setLoading(true);
     try {
       const { db } = await import('@/lib/firebase');
       const { collection, query, getDocs, orderBy } = await import('firebase/firestore');
-      
-      const tasksRef = collection(db, 'users', session.user.email, 'tasks');
+
+      const tasksRef = collection(db, 'users', userEmail, 'tasks');
       const q = query(tasksRef, orderBy('createdAt', 'desc'));
       const snapshot = await getDocs(q);
 
@@ -218,7 +208,18 @@ export function useTasks() {
     } finally {
       setLoading(false);
     }
-  }, [session?.user?.email, isDemo]);
+  }, [userEmail, isDemo]);
+
+  useEffect(() => {
+    if (isDemo) {
+      setTasks(DEMO_TASKS);
+      setLoading(false);
+    } else if (userEmail) {
+      fetchTasks();
+    } else {
+      setLoading(false);
+    }
+  }, [isDemo, userEmail, fetchTasks]);
 
   const addTask = async (data: TaskFormData) => {
     if (isDemo) {
@@ -237,13 +238,13 @@ export function useTasks() {
       return;
     }
 
-    if (!session?.user?.email) return;
+    if (!userEmail) return;
 
     try {
       const { db } = await import('@/lib/firebase');
       const { doc, setDoc, collection } = await import('firebase/firestore');
-      
-      const taskRef = doc(collection(db, 'users', session.user.email, 'tasks'));
+
+      const taskRef = doc(collection(db, 'users', userEmail, 'tasks'));
       const newTask = {
         id: taskRef.id,
         title: data.title,
@@ -253,7 +254,7 @@ export function useTasks() {
         dueDate: data.dueDate ? new Date(data.dueDate) : null,
         createdAt: new Date(),
         updatedAt: new Date(),
-        userId: session.user.email,
+        userId: userEmail,
       };
 
       await setDoc(taskRef, newTask);
@@ -269,13 +270,13 @@ export function useTasks() {
       return;
     }
 
-    if (!session?.user?.email) return;
+    if (!userEmail) return;
 
     try {
       const { db } = await import('@/lib/firebase');
       const { doc, setDoc } = await import('firebase/firestore');
-      
-      const taskRef = doc(db, 'users', session.user.email, 'tasks', task.id);
+
+      const taskRef = doc(db, 'users', userEmail, 'tasks', task.id);
       await setDoc(taskRef, { ...task, updatedAt: new Date() }, { merge: true });
       await fetchTasks();
     } catch (error) {
@@ -289,13 +290,13 @@ export function useTasks() {
       return;
     }
 
-    if (!session?.user?.email) return;
+    if (!userEmail) return;
 
     try {
       const { db } = await import('@/lib/firebase');
       const { doc, deleteDoc } = await import('firebase/firestore');
-      
-      const taskRef = doc(db, 'users', session.user.email, 'tasks', id);
+
+      const taskRef = doc(db, 'users', userEmail, 'tasks', id);
       await deleteDoc(taskRef);
       await fetchTasks();
     } catch (error) {
@@ -309,13 +310,13 @@ export function useTasks() {
       return;
     }
 
-    if (!session?.user?.email) return;
+    if (!userEmail) return;
 
     try {
       const { db } = await import('@/lib/firebase');
       const { doc, setDoc } = await import('firebase/firestore');
-      
-      const taskRef = doc(db, 'users', session.user.email, 'tasks', id);
+
+      const taskRef = doc(db, 'users', userEmail, 'tasks', id);
       await setDoc(taskRef, { completed, updatedAt: new Date() }, { merge: true });
       await fetchTasks();
     } catch (error) {

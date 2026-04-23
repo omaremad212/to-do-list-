@@ -141,14 +141,23 @@ body {
   }
 }
 
-.glass {
-  background: rgba(255, 255, 255, 0.72);
+/* ============================
+   GLASSMORPHISM EFFECT
+   ============================ */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
-.dark .glass {
-  background: rgba(15, 15, 15, 0.72);
+.dark .glass-effect {
+  background: rgba(15, 15, 20, 0.75);
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
 .gradient-primary {
@@ -240,37 +249,126 @@ body {
   background: var(--secondary-foreground);
 }
 
-[data-animations="false"] * {
+/* ============================
+   ANIMATION CONTROL - Applied to <html>
+   ============================ */
+:root[data-animations="false"] * {
   animation: none !important;
+  transition: none !important;
+  transform: none !important;
+}
+
+:root[data-animations="false"] .motion,
+:root[data-animations="false"] [class*="motion-"] {
+  animation: none !important;
+}
+
+:root[data-animations="false"] [data-animate] {
+  animation: none !important;
+}
+
+:root[data-animations="false"] input,
+:root[data-animations="false"] button {
   transition: none !important;
 }
 
-[data-animations="false"] .motion,
-[data-animations="false"] [class*="motion-"] {
-  animation: none !important;
+:root[data-animations="false"] a {
+  transition: none !important;
 }
 
-[data-compact="true"] {
+/* ============================
+   COMPACT MODE - Applied to <html>
+   ============================ */
+:root[data-compact="true"] {
   --spacing-multiplier: 0.75;
 }
 
-[data-compact="true"] main,
-[data-compact="true"] .card,
-[data-compact="true"] section {
+:root[data-compact="true"] .p-6 {
   padding: 0.75rem !important;
 }
 
-[data-compact="true"] main p-6,
-[data-compact="true"] main .p-6 {
-  padding: 0.75rem !important;
-}
-
-[data-compact="true"] main p-4,
-[data-compact="true"] main .p-4 {
+:root[data-compact="true"] .p-4 {
   padding: 0.5rem !important;
 }
 
-[data-compact="true"] main .space-y-6 > * + *,
-[data-compact="true"] .space-y-6 > * + * {
+:root[data-compact="true"] .p-8 {
+  padding: 1rem !important;
+}
+
+:root[data-compact="true"] .space-y-6 > * + * {
   margin-top: 0.5rem !important;
+}
+
+:root[data-compact="true"] .space-y-4 > * + * {
+  margin-top: 0.375rem !important;
+}
+
+:root[data-compact="true"] .space-y-8 > * + * {
+  margin-top: 0.75rem !important;
+}
+
+:root[data-compact="true"] .gap-6 {
+  gap: 0.75rem !important;
+}
+
+:root[data-compact="true"] .gap-4 {
+  gap: 0.5rem !important;
+}
+
+:root[data-compact="true"] .gap-8 {
+  gap: 1rem !important;
+}
+
+:root[data-compact="true"] .mb-6 {
+  margin-bottom: 0.75rem !important;
+}
+
+:root[data-compact="true"] .mb-8 {
+  margin-bottom: 1rem !important;
+}
+
+:root[data-compact="true"] .mb-4 {
+  margin-bottom: 0.5rem !important;
+}
+
+:root[data-compact="true"] .py-6 {
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+}
+
+:root[data-compact="true"] .py-8 {
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
+}
+
+:root[data-compact="true"] .py-4 {
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+}
+
+:root[data-compact="true"] .text-2xl {
+  font-size: 1.25rem !important;
+}
+
+:root[data-compact="true"] .text-xl {
+  font-size: 0.9rem !important;
+}
+
+:root[data-compact="true"] .text-lg {
+  font-size: 0.875rem !important;
+}
+
+:root[data-compact="true"] .h-\[64px\] {
+  height: 48px !important;
+}
+
+:root[data-compact="true"] main,
+:root[data-compact="true"] .card,
+:root[data-compact="true"] section {
+  padding: 0.75rem !important;
+}
+
+:root[data-compact="true"] input,
+:root[data-compact="true"] button {
+  transform: scale(0.95);
 }

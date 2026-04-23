@@ -1,6 +1,6 @@
 'use client';
 
-import { Task, TaskFilter } from '@/types';
+import { Task, TaskFilter, TaskFormData } from '@/types';
 import { TaskItem, TaskForm } from '@/components/tasks';
 import { TaskSkeleton, EmptyState, Modal, Button } from '@/components/ui';
 import { useState, useMemo } from 'react';
@@ -15,7 +15,7 @@ interface TaskListProps {
   onToggleComplete: (id: string, completed: boolean) => void;
   onUpdateTask: (task: Task) => void;
   onDeleteTask: (id: string) => void;
-  onAddTask: (data: any) => void;
+  onAddTask: (data: TaskFormData) => void;
 }
 
 export default function TaskList({
@@ -65,9 +65,9 @@ export default function TaskList({
     }
   };
 
-  const handleFormSubmit = (data: any) => {
+  const handleFormSubmit = (data: TaskFormData) => {
     if (editingTask) {
-      onUpdateTask({ ...editingTask, ...data, dueDate: data.dueDate ? new Date(data.dueDate) : null });
+      onUpdateTask({ ...editingTask, ...data, dueDate: data.dueDate ? new Date(data.dueDate) : undefined });
       toast.success('Task updated');
     } else {
       onAddTask(data);

@@ -63,8 +63,7 @@ export default function Sidebar({ filter, onFilterChange, stats }: SidebarProps)
   return (
     <aside
       className={clsx(
-        'hidden lg:flex flex-col fixed left-0 top-[var(--navbar-height)] h-[calc(100vh-var(--navbar-height))] w-[var(--sidebar-width)] border-r border-[var(--border)]',
-        'bg-gradient-to-b from-[var(--card)] to-transparent',
+        'hidden lg:flex flex-col fixed left-0 top-[var(--navbar-height)] h-[calc(100vh-var(--navbar-height))] w-[var(--sidebar-width)] glass-effect border-r border-[var(--border)]/50',
         'transition-colors duration-300'
       )}
     >
@@ -88,24 +87,21 @@ export default function Sidebar({ filter, onFilterChange, stats }: SidebarProps)
                   : stats.pending;
 
             return (
-              <motion.button
+              <button
                 key={f.value}
                 onClick={() => onFilterChange(f.value)}
                 className={clsx(
-                  'relative w-full flex items-center gap-4 px-3 py-3 rounded-2xl text-left transition-all duration-200 group',
+                  'relative w-full flex items-center gap-4 px-3 py-3 rounded-2xl text-left transition-all duration-200 group cursor-pointer',
                   isActive
                     ? 'bg-gradient-to-r from-[var(--primary)]/15 to-transparent'
                     : 'hover:bg-[var(--accent)]'
                 )}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
-                whileHover={{ x: 4 }}
+                style={{ position: 'relative' }}
               >
                 {isActive && (
                   <motion.div
                     layoutId="sidebarActive"
-                    className="absolute inset-0 bg-gradient-to-r from-[var(--primary)]/10 to-transparent rounded-2xl border border-[var(--primary)]/20"
+                    className="absolute inset-0 bg-gradient-to-r from-[var(--primary)]/10 to-transparent rounded-2xl border border-[var(--primary)]/20 pointer-events-none"
                     initial={false}
                     transition={{ type: 'spring', duration: 0.4 }}
                   />
@@ -142,18 +138,17 @@ export default function Sidebar({ filter, onFilterChange, stats }: SidebarProps)
                   </p>
                 </div>
 
-                <motion.span
+                <span
                   className={clsx(
                     'relative z-10 text-xs font-bold px-2.5 py-1 rounded-lg transition-all duration-200',
                     isActive
                       ? 'bg-[var(--primary)] text-white'
                       : 'bg-[var(--muted)] text-[var(--muted-foreground)] group-hover:bg-[var(--secondary)]'
                   )}
-                  layout
                 >
                   {count}
-                </motion.span>
-              </motion.button>
+                </span>
+              </button>
             );
           })}
         </nav>
