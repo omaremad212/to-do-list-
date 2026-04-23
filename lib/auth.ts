@@ -4,12 +4,13 @@ import CredentialsProvider from "next-auth/providers/credentials";
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
-      name: 'Demo',
+      name: 'Credentials',
       credentials: {
-        isDemo: { label: 'isDemo', type: 'boolean' }
+        isDemo: { label: 'isDemo', type: 'boolean' },
+        email: { label: 'email', type: 'string' },
+        password: { label: 'password', type: 'string' },
       },
       async authorize(credentials) {
-        // Demo mode login
         if (credentials?.isDemo === 'true') {
           return {
             id: 'demo@taskflow.app',
@@ -17,20 +18,22 @@ export const authOptions: NextAuthOptions = {
             name: 'Demo User',
           };
         }
-        // Real user login - in production this would validate against a real auth provider
-        // For now, any email/password that isn't demo will be treated as a real user
+        if (credentials?.email && credentials?.password) {
+          return {
+            id: credentials.email,
+            email: credentials.email,
+            name: credentials.email.split('@')[0],
+          };
+        }
         return null;
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user, trigger, session }) {
-      // Check if this is a demo user
-      const isDemoUser = token.email === 'demo@taskflow.app';
-      
       if (user) {
         token.id = user.id;
-        token.isDemo = isDemoUser;
+        token.isDemo = user.email === 'demo@taskflow.app';
       }
       return token;
     },

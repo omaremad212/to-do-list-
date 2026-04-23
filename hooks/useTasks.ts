@@ -179,7 +179,7 @@ export function useTasks() {
   const [filter, setFilter] = useState<TaskFilter>('all');
   const [search, setSearch] = useState('');
 
-  const isDemo = (session?.user as any)?.isDemo || session?.user?.email === 'demo@taskflow.app';
+  const isDemo = (session?.user as any)?.isDemo === true;
 
   useEffect(() => {
     if (isDemo) {

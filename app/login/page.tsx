@@ -56,14 +56,6 @@ function LoginContent() {
       return;
     }
 
-    // For demo, check if this is the demo email
-    if (email.toLowerCase() === 'demo@taskflow.app') {
-      await handleDemoLogin();
-      return;
-    }
-
-    // In production, this would validate against a real auth provider
-    // For now, we'll create a mock session for demo purposes
     const result = await signIn('credentials', {
       email,
       password,

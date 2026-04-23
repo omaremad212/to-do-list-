@@ -22,7 +22,14 @@ import { RecentActivity, QuickStats, ProductivityScore } from '@/components/ui/W
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { tasks, loading, stats, isDemo } = useTasks();
+  const {
+    tasks,
+    loading,
+    stats,
+    isDemo,
+    filter,
+    setFilter,
+  } = useTasks();
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('7d');
 
   useEffect(() => {
@@ -97,7 +104,7 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-[var(--background)]">
       <Navbar />
       <div className="flex">
-        <Sidebar filter="all" onFilterChange={() => {}} stats={stats} />
+        <Sidebar filter={filter} onFilterChange={setFilter} stats={stats} />
         
         <main className="flex-1 pt-[var(--navbar-height)] lg:ml-[var(--sidebar-width)]">
           <div className="p-6 lg:p-8 space-y-8">

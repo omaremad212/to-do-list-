@@ -142,13 +142,13 @@ body {
 }
 
 .glass {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
 .dark .glass {
-  background: rgba(15, 15, 15, 0.8);
+  background: rgba(15, 15, 15, 0.72);
 }
 
 .gradient-primary {
@@ -245,14 +245,32 @@ body {
   transition: none !important;
 }
 
+[data-animations="false"] .motion,
+[data-animations="false"] [class*="motion-"] {
+  animation: none !important;
+}
+
+[data-compact="true"] {
+  --spacing-multiplier: 0.75;
+}
+
+[data-compact="true"] main,
+[data-compact="true"] .card,
+[data-compact="true"] section {
+  padding: 0.75rem !important;
+}
+
+[data-compact="true"] main p-6,
+[data-compact="true"] main .p-6 {
+  padding: 0.75rem !important;
+}
+
+[data-compact="true"] main p-4,
+[data-compact="true"] main .p-4 {
+  padding: 0.5rem !important;
+}
+
+[data-compact="true"] main .space-y-6 > * + *,
 [data-compact="true"] .space-y-6 > * + * {
-  margin-top: 0.75rem;
-}
-
-[data-compact="true"] .p-6 {
-  padding: 0.75rem;
-}
-
-[data-compact="true"] .p-4 {
-  padding: 0.5rem;
+  margin-top: 0.5rem !important;
 }

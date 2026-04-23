@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { Navbar } from '@/components/layout';
 import { motion } from 'framer-motion';
 import { clsx } from 'clsx';
@@ -17,7 +18,9 @@ import {
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { Button } from '@/components/ui';
 
-export default function ProfilePage() {
+const DynamicNavbar = dynamic(() => Promise.resolve(Navbar), { ssr: false });
+
+function SettingsContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { themeMode, setThemeMode, appearance, updateAppearance } = useTheme();
@@ -292,29 +295,49 @@ export default function ProfilePage() {
                           </div>
                         ))}
 
-                        {[
-                          { key: 'compactMode', label: 'Compact Mode' },
-                          { key: 'showAnimations', label: 'Show Animations' },
-                        ].map((item) => (
-                          <div
-                            key={item.key}
-                            className="flex items-center justify-between p-4 rounded-xl bg-[var(--muted)]/50"
-                          >
-                            <span className="font-medium text-[var(--foreground)]">
-                              {item.label}
-                            </span>
-                            <button
-                              onClick={() =>
-                                updateAppearance({
-                                  [item.key]:
-                                    appearance[item.key as boolean]
-                                  ? 'left-6'
-                                  : 'left-1'
+{[
+                          { key: 'compactMode', label: 'Compact Mode', description: 'Reduce spacing for more content' },
+                          { key: 'showAnimations', label: 'Show Animations', description: 'Enable motion effects' },
+                        ].map((item) => {
+                          const isEnabled = item.key === 'compactMode' ? appearance.compactMode : appearance.showAnimations;
+                          return (
+                            <div
+                              key={item.key}
+                              className="flex items-center justify-between p-4 rounded-xl bg-[var(--muted)]/50"
+                            >
+                              <div>
+                                <span className="font-medium text-[var(--foreground)]">
+                                  {item.label}
+                                </span>
+                                <p className="text-sm text-[var(--muted-foreground)]">
+                                  {item.description}
+                                </p>
+                              </div>
+                              <button
+                                onClick={() =>
+                                  updateAppearance({
+                                    [item.key]: !isEnabled
+                                  })
+                                }
+                                className={clsx(
+                                  'w-12 h-7 rounded-full transition-all relative',
+                                  isEnabled
+                                    ? 'gradient-primary'
+                                    : 'bg-[var(--border)]'
                                 )}
-                              />
-                            </button>
-                          </div>
-                        ))}
+                              >
+                                <div
+                                  className={clsx(
+                                    'absolute top-1 w-5 h-5 rounded-full bg-white shadow transition-all',
+                                    isEnabled
+                                      ? 'left-6'
+                                      : 'left-1'
+                                  )}
+                                />
+                              </button>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   </motion.div>
@@ -418,4 +441,8 @@ export default function ProfilePage() {
       </main>
     </div>
   );
+}
+
+export default function SettingsPage() {
+  return <SettingsContent />;
 }
